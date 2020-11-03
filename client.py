@@ -24,13 +24,20 @@ async def agent_loop(server_address="localhost:8000", agent_name="student"):
                     # Example: {'fps': 10, 'timeout': 3000, 'map': 'levels/1.xsb'}
                     game_properties = update
                     mapa = Map(update["map"])
-                    print("New level!")
+                    print("\nNew level received!")
                     print("The map is...")
                     print(mapa)
+                    state = None
                 else:
                     # we got a current map state update
                     # Example: {'player': 'goncalom', 'level': 1, 'step': 144, 'score': [0, 0, 144], 'keeper': [2, 3], 'boxes': [[1, 3], [3, 4]]}
-                    state = update
+                    if state == None:
+                        state = update
+                        print("\nFirst state received!")
+                        import pprint
+                        pprint.pprint(state)
+                    else:
+                        state = update
 
                 # Execute random keys
                 keys = ["w", "a", "s", "d"]
