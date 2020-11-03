@@ -33,10 +33,15 @@ async def agent_loop(server_address="localhost:8000", agent_name="student"):
 
                 if "map" in update:
                     # we got a new level
+                    # Example: {'fps': 10, 'timeout': 3000, 'map': 'levels/1.xsb'}
                     game_properties = update
                     mapa = Map(update["map"])
+                    print("New level!")
+                    print("The map is...")
+                    print(mapa)
                 else:
                     # we got a current map state update
+                    # Example: {'player': 'goncalom', 'level': 1, 'step': 144, 'score': [0, 0, 144], 'keeper': [2, 3], 'boxes': [[1, 3], [3, 4]]}
                     state = update
 
                 # Next lines are only for the Human Agent, the key values are nonetheless the correct ones!
