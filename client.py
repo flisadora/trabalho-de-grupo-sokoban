@@ -15,7 +15,7 @@ def throwsBoxAgainstTheWall(map, pos_boxes, pos_keeper, move):
     pos_keeper      Position of keeper in the form [x, y]
     move            Function that computes position evolution
     --- Returns
-    actionValid     True if action is not going to throw box against the wall
+    againstWall     True if action is not going to throw box against the wall
     """
 
     # Compute agent new position
@@ -34,6 +34,26 @@ def throwsBoxAgainstTheWall(map, pos_boxes, pos_keeper, move):
                 return True
     
     return False
+
+def goingAgainstTheWall(map, pos_keeper, move):
+    """ Tells if the agent is moving against the wall
+    --- Parameters
+    map             Map object 
+    pos_keeper      Position of keeper in the form [x, y]
+    move            Function that computes position evolution
+    --- Returns
+    goingAgainst    True if going against the wall
+    """
+    # Compute agent new position and map array
+    newAgentPosition = move(pos_keeper)
+    mapArray = str(map).split("\n")
+
+    # Check if at the agent new position it is wall
+    if mapArray[newAgentPosition[1]][newAgentPosition[0]] == '#':
+        return True
+    
+    return False
+
 
 def actionValid(map, pos_boxes, pos_keeper, action):
     """ Tells if an action is valid
@@ -62,6 +82,9 @@ def actionValid(map, pos_boxes, pos_keeper, action):
     
     # Check if it is going to throw box against the wall
     if throwsBoxAgainstTheWall(map, pos_boxes, pos_keeper, move):
+        return False
+    # Check if agent is moving against the wall
+    if goingAgainstTheWall(map, pos_keeper, move):
         return False
 
     return True
