@@ -16,6 +16,10 @@ def throwsBoxAgainstTheWall(map, pos_boxes, pos_keeper, move):
     move            Function that computes position evolution
     --- Returns
     againstWall     True if action is not going to throw box against the wall
+    -- Improvements
+    The corrent function if preventing the agent from throwing the box at any wall, but the desired solution is
+    - Prevent the agent from throwing agains a dead end (wall that makes an L)
+    - Prevent the agent from throwing at a wall which is not in line or col with any diamond
     """
 
     # Compute agent new position
