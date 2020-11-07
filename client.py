@@ -7,15 +7,43 @@ import websockets
 from mapa import Map
 import random
 
-def actionValid(map, pos_boxes, pos_keeper, action):
+def throwsBoxAgainstTheWall(map, pos_boxes, pos_keeper, move):
     """ Validates if an action with the current elements positions will throw a box against a wall
+    --- Parameters
+    map             Map object 
+    pos_boxes       Array of box positions in the form [x, y]
+    pos_keeper      Position of keeper in the form [x, y]
+    move            Function that computes position evolution
+    --- Returns
+    actionValid     True if action is not going to throw box against the wall
+    """
+
+    # Compute agent new position
+    newAgentPosition = move(pos_keeper)
+
+    # Check if there is any box at that position (that whould be pushed)
+    mapArray = str(map).split("\n")
+    for box in pos_boxes:
+        if box == newAgentPosition:
+            # Get box new position
+            newBoxPosition = move(box)
+            # Check if up that position is wall, and if so that box is going to be thrown against the wall
+            shouldNotBeWall = move(newBoxPosition)
+            # Invert coordinates because mapArray first index goes for the line (y) and the second for the col (x)
+            if mapArray[shouldNotBeWall[1]][shouldNotBeWall[0]] == '#':
+                return True
+    
+    return False
+
+def actionValid(map, pos_boxes, pos_keeper, action):
+    """ Tells if an action is valid
     --- Parameters
     map             Map object 
     pos_boxes       Array of box positions in the form [x, y]
     pos_keeper      Position of keeper in the form [x, y]
     action          Action to throw (String)
     --- Returns
-    actionValid     True if action is not going to throw box against the wall
+    actionValid     True if action is valid
     """
     # Check if arguments are already defined (they are not defined on first action yet)
     if map == None or len(pos_boxes) == 0 or pos_keeper == None:
@@ -32,20 +60,9 @@ def actionValid(map, pos_boxes, pos_keeper, action):
     elif action == 'd': #Right
         move = lambda x: [x[0]+1, x[1]]
     
-    # Compute agent new position
-    newAgentPosition = move(pos_keeper)
-
-    # Check if there is any box at that position (that whould be pushed)
-    mapArray = str(map).split("\n")
-    for box in pos_boxes:
-        if box == newAgentPosition:
-            # Get box new position
-            newBoxPosition = move(box)
-            # Check if up that position is wall, and if so that box is going to be thrown against the wall
-            shouldNotBeWall = move(newBoxPosition)
-            # Invert coordinates because mapArray first index goes for the line (y) and the second for the col (x)
-            if mapArray[shouldNotBeWall[1]][shouldNotBeWall[0]] == '#':
-                return False
+    # Check if it is going to throw box against the wall
+    if throwsBoxAgainstTheWall(map, pos_boxes, pos_keeper, move):
+        return False
 
     return True
 
@@ -95,7 +112,7 @@ async def agent_loop(server_address="localhost:8000", agent_name="student"):
                     keys = ["w", "a", "s", "d"] # Up, left, down and right
                     key = keys[random.randint(0, len(keys)-1)]
 
-                    # Check if it is going to throw a box against a all
+                    # Check if action is valid
                     if not actionValid(mapa, pos_boxes, pos_keeper, key):
                         continue
 
