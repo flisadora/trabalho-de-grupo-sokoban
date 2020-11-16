@@ -67,6 +67,7 @@ class SokobanDomain(SearchDomain):
     state
       keeper          (x, y)
       boxes           [(x, y)]
+      action          <Char>
     """
     def actions(self, state):
         actions = []
@@ -112,7 +113,8 @@ class SokobanDomain(SearchDomain):
 
         newState = {
             'keeper': move(state['keeper']),
-            'boxes': []
+            'boxes': [],
+            'action': action
         }
 
         for box in state['boxes']:

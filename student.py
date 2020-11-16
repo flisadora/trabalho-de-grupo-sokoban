@@ -9,6 +9,14 @@ from mapa import Map
 from tree_search import SearchTree, SearchProblem
 from sobobanDomain import SokobanDomain
 
+def getActions(states):
+    actions = ""
+    for state in states:
+        if state['action']:
+            actions += state['action']
+
+    return actions
+
 async def solver(puzzle, solution):
     while True:
         game_properties = await puzzle.get()
@@ -22,9 +30,9 @@ async def solver(puzzle, solution):
         print(d.diamonds)
 
         print("\nBuilding search problem...")
-        initialState = { 'keeper': mapa.keeper, 'boxes': mapa.boxes }
+        initialState = { 'keeper': mapa.keeper, 'boxes': mapa.boxes, 'action': '' }
         print(initialState)
-        goalState = { 'keeper': mapa.keeper, 'boxes': d.diamonds }
+        goalState = { 'keeper': mapa.keeper, 'boxes': d.diamonds, 'action': '' }
         print(goalState)
         p = SearchProblem(d, initialState, goalState)
         
@@ -32,22 +40,17 @@ async def solver(puzzle, solution):
         t = SearchTree(p, 'a*')
 
         sol = t.search(50)
+        keys = ""
         if sol:
             print("\nTHERE IS A SOLUTION")
             print(sol)
+            print("\nThe keys are...")
+            print(getActions(sol))
+            keys = sol
         else:
             print("\nSolution NOT FOUND!")
 
-
-        while True:
-            # Pick a random key
-            # keys = ["w", "a", "s", "d"] # Up, left, down and right
-            # key = keys[random.randint(0, len(keys)-1)]
-
-            await asyncio.sleep(0)
-            break
-
-        await solution.put("")
+        await solution.put(keys)
 
 async def agent_loop(puzzle, solution, server_address="localhost:8000", agent_name="student"):
     async with websockets.connect(f"ws://{server_address}/player") as websocket:
