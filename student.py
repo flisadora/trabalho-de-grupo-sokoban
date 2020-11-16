@@ -6,19 +6,48 @@ import random
 
 import websockets
 from mapa import Map
+from tree_search import SearchTree, SearchProblem
+from sobobanDomain import SokobanDomain
 
 async def solver(puzzle, solution):
     while True:
         game_properties = await puzzle.get()
         mapa = Map(game_properties["map"])
+        print("\nSearching solution for a new map!")
         print(mapa)
 
+        print("\nBuilding search domain...")
+        d = SokobanDomain(str(mapa))
+        print(d.map)
+        print(d.diamonds)
+
+        print("\nBuilding search problem...")
+        initialState = { 'keeper': mapa.keeper, 'boxes': mapa.boxes }
+        print(initialState)
+        goalState = { 'keeper': mapa.keeper, 'boxes': d.diamonds }
+        print(goalState)
+        p = SearchProblem(d, initialState, goalState)
+        
+        print("\nBuilding search tree...")
+        t = SearchTree(p, 'a*')
+
+        sol = t.search(50)
+        if sol:
+            print("\nTHERE IS A SOLUTION")
+            print(sol)
+        else:
+            print("\nSolution NOT FOUND!")
+
+
         while True:
-            await asyncio.sleep(0.1)  # this should be 0 in your code and this is REQUIRED
+            # Pick a random key
+            # keys = ["w", "a", "s", "d"] # Up, left, down and right
+            # key = keys[random.randint(0, len(keys)-1)]
+
+            await asyncio.sleep(0)
             break
 
-        keys = "sawdddsawaassdwawdwwasdssddwasaww"
-        await solution.put(keys)
+        await solution.put("")
 
 async def agent_loop(puzzle, solution, server_address="localhost:8000", agent_name="student"):
     async with websockets.connect(f"ws://{server_address}/player") as websocket:
@@ -36,6 +65,8 @@ async def agent_loop(puzzle, solution, server_address="localhost:8000", agent_na
                     # we got a new level
                     game_properties = update
                     keys = ""
+                    print("\nReceived game properties!")
+                    print(game_properties)
                     await puzzle.put(game_properties)
 
                 if not solution.empty():
