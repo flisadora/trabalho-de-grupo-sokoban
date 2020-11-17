@@ -39,14 +39,22 @@ async def solver(puzzle, solution):
         print("\nBuilding search tree...")
         t = SearchTree(p, 'a*')
 
-        sol = t.search(50)
+        print("\nCreating coroutine for search...")
+        search = t.search(50)
+        print(search)
+        
+        print("\nWaiting for search...")
+        sol = await search
+        print("\nSearch done!")
+        print(sol)
+
         keys = ""
         if sol:
             print("\nTHERE IS A SOLUTION")
             print(sol)
             print("\nThe keys are...")
-            print(getActions(sol))
-            keys = sol
+            keys = getActions(sol)
+            print(keys)
         else:
             print("\nSolution NOT FOUND!")
 

@@ -14,6 +14,8 @@
 
 from abc import ABC, abstractmethod
 
+import asyncio
+
 # Dominios de pesquisa
 # Permitem calcular
 # as accoes possiveis em cada estado, etc
@@ -128,9 +130,13 @@ class SearchTree:
         return self.get_plan(self.solution)
 
     # procurar a solucao
-    def search(self, limit=None):
+    async def search(self, limit=None):
         while self.open_nodes != []:
+
+            await asyncio.sleep(0)
+
             node = self.open_nodes.pop(0)
+            print(node.state)
             # Ex15 Check if node has the greatest cost
             # It has greater cost than all the others?
             if len(self.nodesWithGreaterCost)==0 or all([node.cost > n.cost for n in self.nodesWithGreaterCost]):
