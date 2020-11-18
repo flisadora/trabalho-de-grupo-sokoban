@@ -136,7 +136,7 @@ class SearchTree:
             await asyncio.sleep(0)
 
             node = self.open_nodes.pop(0)
-            print(node.state)
+            print("\n",node.state)
             # Ex15 Check if node has the greatest cost
             # It has greater cost than all the others?
             if len(self.nodesWithGreaterCost)==0 or all([node.cost > n.cost for n in self.nodesWithGreaterCost]):
@@ -159,19 +159,18 @@ class SearchTree:
             # Ex5 Register number of non terminal nodes
             self.non_terminals += 1
             lnewnodes = []
-            print("\nStudying node ", node.state)
-            print("Actions available are...")
+            #print("\nStudying node ", node.state)
+            #print("Actions available are...")
             for a in self.problem.domain.actions(node.state):
-                print("Action", a)
                 newstate = self.problem.domain.result(node.state,a)
-                print("New state would be", newstate)
                 # Ex1 Avoid cycles (don't visit states already visited) 
                 # Ex4 Depth search with limit (newnode.depth = node.depth + 1 <= limit)
-                #if not node.in_upper_family(newstate) and (limit is None or node.depth < limit):
+                if not node.in_upper_family(newstate) and (limit is None or node.depth < limit):
                     # Ex2 Add depth attr to search nodes
                     # Ex 8 Add cost (from root to self) attr to node 
                     # Ex11 Add heuristic distance from newnode to goal
-                if (limit is None or node.depth < limit):
+                    #print("Action", a)
+                    #print("New state would be", newstate)
                     newnode = SearchNode(newstate,node,node.depth+1,node.cost + self.problem.domain.cost(node.state, a), self.problem.domain.heuristic(newstate, self.problem.goal), a)
                     lnewnodes.append(newnode)
             self.add_to_open(lnewnodes)

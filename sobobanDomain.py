@@ -1,5 +1,7 @@
 from tree_search import SearchDomain
 
+from math import hypot
+
 """
 Map example:
 ####--
@@ -73,34 +75,38 @@ class SokobanDomain(SearchDomain):
         actions = []
         # For every possible action
         for action, move in self.allActions.items():
-            actionValid = True
 
             # Compute keeper new position
             keeperPosition = move(state['keeper'])
 
             # 1. Check if keeper is moving against the wall
-            if self.map[keeperPosition[1]][keeperPosition[0]] == '#': continue
+            if self.map[keeperPosition[1]][keeperPosition[0]] == '#': 
+                continue
 
             # 2. Validate box movements
+            actionValid = True
             for box in state['boxes']:
+                # A box only moves if the keeper new position is hover the box!
                 if box == keeperPosition:
-                    # 2.1. Check if box is hover diamond (don't want to remove it!)
-                    if box in self.diamonds: actionValid = False
-
                     # Get box new position
                     boxPosition = move(box)
                     boxNextPosition = move(boxPosition)
+
+                    # 2.1. Check if box hover another box (can't pile boxes!)
+                    if boxPosition in state['boxes']:
+                        actionValid = False
                     
                     # 2.2. Check if new position is hover diamond
-                    if boxPosition in self.diamonds: continue
+                    if boxPosition in self.diamonds:
+                        continue 
 
                     # 2.3. Check if moving box to dead end (if next position is wall)
-                    if self.map[boxNextPosition[1]][boxNextPosition[0]] == '#':
-                        print("GOING AGAINST THE WALL with action", action)
+                    elif self.map[boxNextPosition[1]][boxNextPosition[0]] == '#':
                         actionValid = False
+            if not actionValid: 
+                continue
             
             # If action is valid, append it to list
-            if not actionValid: continue
             actions.append(action)
 
         return actions
@@ -129,14 +135,21 @@ class SokobanDomain(SearchDomain):
     def cost(self, state, action):
         return 0
 
+
     # custo estimado de chegar de um estado a outro
     def heuristic(self, state, goal):
-        points = 0
-        for box in goal['boxes']:
-            if box in self.diamonds:
-                points -= 1
+        heuristic = 0
+        keeper = state['keeper']
+        for box in state['boxes']:
+            # Sum the distance between the keeper and each box
+            heuristic += hypot(keeper[0] - box[0], keeper[1] - box[1])
+            # Sum the distance between each box and each diamond
+            # x2 because it it more important!
+            for diamond in self.diamonds:
+                heuristic += 2*hypot(diamond[0] - box[0], diamond[1] - box[1])
 
-        return points
+        print("\nHeuristic",heuristic)
+        return heuristic
 
     # test if the given "goal" is satisfied in "state"
     def satisfies(self, state, goal):
