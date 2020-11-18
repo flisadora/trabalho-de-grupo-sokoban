@@ -2,17 +2,11 @@ import asyncio
 import getpass
 import json
 import os
+import random
 
 import websockets
 from mapa import Map
-
-# Next 4 lines are not needed for AI agents, please remove them from your code!
-import pygame
-
-pygame.init()
-program_icon = pygame.image.load("data/icon2.png")
-pygame.display.set_icon(program_icon)
-
+from node import PathAlgorithm 
 
 async def agent_loop(server_address="localhost:8000", agent_name="student"):
     async with websockets.connect(f"ws://{server_address}/player") as websocket:
@@ -20,56 +14,62 @@ async def agent_loop(server_address="localhost:8000", agent_name="student"):
         # Receive information about static game properties
         await websocket.send(json.dumps({"cmd": "join", "name": agent_name}))
 
-        # Next 3 lines are not needed for AI agent
-        SCREEN = pygame.display.set_mode((299, 123))
-        SPRITES = pygame.image.load("data/pad.png").convert_alpha()
-        SCREEN.blit(SPRITES, (0, 0))
-
+        
+        pos_boxes = []
+        pos_keeper = None
+        '''
+        n = PathAlgorithm() 
+        k = n.search((1,1),(3,4))
+        print(n.search((1,1),(3,4)))
+       '''
+        
         while True:
             try:
                 update = json.loads(
                     await websocket.recv()
                 )  # receive game update, this must be called timely or your game will get out of sync with the server
-
+                
                 if "map" in update:
                     # we got a new level
                     game_properties = update
                     mapa = Map(update["map"])
+                    state = None
                 else:
-                    # we got a current map state update
-                    state = update
+                    if state == None:
+                        state = update
+                        # If first state, output it as an example
 
-                # Next lines are only for the Human Agent, the key values are nonetheless the correct ones!
-                key = ""
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
+                        print("\nFirst state received!")
+                        #import pprint
+                        #pprint.pprint(state)
+                    else:
+                        state = update
+                        # Update elements positions
+                        pos_boxes = update['boxes']
+                        pos_keeper = update['keeper']
+                        import pprint
+                        pprint.pprint(pos_keeper)
+                       
 
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_UP:
-                            key = "w"
-                        elif event.key == pygame.K_LEFT:
-                            key = "a"
-                        elif event.key == pygame.K_DOWN:
-                            key = "s"
-                        elif event.key == pygame.K_RIGHT:
-                            key = "d"
+                    #n = PathAlgorithm()
+                    #pprint.pprint(n.search(pos_boxes[1],pos_keeper))                  
+                    #key = [ i[1] for i in k]
+                    
+                while True:
+                    # Pick a random key
+                    keys = ["w", "a", "s", "d"] # Up, left, down and right
+                    key = keys[random.randint(0, len(keys)-1)] 
 
-                        elif event.key == pygame.K_d:
-                            import pprint
-
-                            pprint.pprint(state)
-                            print(Map(f"levels/{state['level']}.xsb"))
-                        await websocket.send(
-                            json.dumps({"cmd": "key", "key": key})
-                        )  # send key command to server - you must implement this send in the AI agent
-                        break
+                await websocket.send(
+                    json.dumps({"cmd": "key", "key": key})
+                )  # send key command to server - you must implement this send in the AI agent
+                    
+                    
             except websockets.exceptions.ConnectionClosedOK:
                 print("Server has cleanly disconnected us")
                 return
 
-            # Next line is not needed for AI agent
-            pygame.display.flip()
+           
 
 
 # DO NOT CHANGE THE LINES BELLOW
