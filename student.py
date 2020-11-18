@@ -8,6 +8,7 @@ import websockets
 from mapa import Map
 from tree_search import SearchTree, SearchProblem
 from sobobanDomain import SokobanDomain
+from time import time
 
 def getActions(states):
     actions = ""
@@ -40,7 +41,8 @@ async def solver(puzzle, solution):
         t = SearchTree(p, 'a*')
 
         print("\nCreating coroutine for search...")
-        search = t.search(50)
+        start_time = time()
+        search = t.search(25)
         print(search)
         
         print("\nWaiting for search...")
@@ -51,10 +53,20 @@ async def solver(puzzle, solution):
         keys = ""
         if sol:
             print("\nTHERE IS A SOLUTION")
-            print(sol)
             print("\nThe keys are...")
             keys = getActions(sol)
             print(keys)
+            # Save solution to file
+            with open(f'solutions/{game_properties["map"].split("/")[1]}', 'w') as f:
+                for l in d.map:
+                    f.write(l)
+                    f.write("\n")
+                f.write("\n")
+                f.write("Keys for solution are:")
+                f.write(keys)
+                f.write("\n\n")
+                f.write(f'Time taken to run: {time() - start_time} seconds')
+                f.write("\n")
         else:
             print("\nSolution NOT FOUND!")
 
