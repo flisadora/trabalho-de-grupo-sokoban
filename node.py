@@ -81,3 +81,8 @@ class PathAlgorithm :
             if (neighbor == node and neighbor.f >= node.f):
                 return False
         return True
+        '''
+        n = PathAlgorithm() 
+        k = n.search((1,1),(3,4))
+        print(n.search((1,1),(3,4)))
+       '''

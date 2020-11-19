@@ -2,11 +2,21 @@ import asyncio
 import getpass
 import json
 import os
-import random
 
 import websockets
 from mapa import Map
-from node import PathAlgorithm 
+import random
+from node import PathAlgorithm
+
+
+def moves (map, pos_boxes, pos_keeper):
+    if map == None or len(pos_boxes) == 0 or len(pos_keeper):
+        return []
+    k = []
+    n = PathAlgorithm() 
+    k = n.search(pos_boxes[1],pos_keeper) #retorna uma lista com o caminho e as teclas
+    return k 
+
 
 async def agent_loop(server_address="localhost:8000", agent_name="student"):
     async with websockets.connect(f"ws://{server_address}/player") as websocket:
@@ -14,63 +24,60 @@ async def agent_loop(server_address="localhost:8000", agent_name="student"):
         # Receive information about static game properties
         await websocket.send(json.dumps({"cmd": "join", "name": agent_name}))
 
-        
+        # Keep positiontrack of elements positions
         pos_boxes = []
         pos_keeper = None
-        '''
-        n = PathAlgorithm() 
-        k = n.search((1,1),(3,4))
-        print(n.search((1,1),(3,4)))
-       '''
-        
+        s = []
         while True:
             try:
                 update = json.loads(
                     await websocket.recv()
                 )  # receive game update, this must be called timely or your game will get out of sync with the server
-                
+
                 if "map" in update:
                     # we got a new level
-                    game_properties = update
+                    # Example: {'fps': 10, 'timeout': 3000, 'map': 'levels/1.xsb'}
                     mapa = Map(update["map"])
+                    print("\nNew level received!")
+                    print("The map is...")
+                    print(mapa)
+                    print(update)
                     state = None
                 else:
+                    # we got a current map state update
+                    # Example: {'player': 'goncalom', 'level': 1, 'step': 144, 'score': [0, 0, 144], 'keeper': [2, 3], 'boxes': [[1, 3], [3, 4]]}
                     if state == None:
                         state = update
                         # If first state, output it as an example
-
                         print("\nFirst state received!")
-                        #import pprint
-                        #pprint.pprint(state)
+                        import pprint
+                        pprint.pprint(state)
                     else:
                         state = update
                         # Update elements positions
                         pos_boxes = update['boxes']
                         pos_keeper = update['keeper']
-                        import pprint
-                        pprint.pprint(pos_keeper)
-                       
 
-                    #n = PathAlgorithm()
-                    #pprint.pprint(n.search(pos_boxes[1],pos_keeper))                  
-                    #key = [ i[1] for i in k]
-                    
+                #Se o resultado do moves for uma array vazio ele continua e caso nao guarda o valor 
+                # do caminho e das teclas em s     
                 while True:
-                    # Pick a random key
-                    keys = ["w", "a", "s", "d"] # Up, left, down and right
-                    key = keys[random.randint(0, len(keys)-1)] 
-
+                    if moves (map,pos_boxes,pos_keeper) == []:     
+                        continue
+                    else:
+                        s = moves (map,pos_boxes,pos_keeper)
+                        import pprint
+                        pprint.pprint(s)
+                        pprint.pprint(pos_boxes)  
+                         
+                    break
+                       
                 await websocket.send(
                     json.dumps({"cmd": "key", "key": key})
                 )  # send key command to server - you must implement this send in the AI agent
-                    
-                    
+                
             except websockets.exceptions.ConnectionClosedOK:
                 print("Server has cleanly disconnected us")
                 return
-
-           
-
 
 # DO NOT CHANGE THE LINES BELLOW
 # You can change the default values using the command line, example:
