@@ -42,7 +42,7 @@ async def solver(puzzle, solution):
 
         print("\nCreating coroutine for search...")
         start_time = time()
-        search = t.search(25)
+        search = t.search(40)
         print(search)
         
         print("\nWaiting for search...")

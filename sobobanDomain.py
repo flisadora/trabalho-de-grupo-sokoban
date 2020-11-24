@@ -75,16 +75,17 @@ class SokobanDomain(SearchDomain):
         actions = []
         # For every possible action
         for action, move in self.allActions.items():
+            
+            actionValid = True
 
             # Compute keeper new position
             keeperPosition = move(state['keeper'])
 
             # 1. Check if keeper is moving against the wall
             if self.map[keeperPosition[1]][keeperPosition[0]] == '#': 
-                continue
+                actionValid = False
 
             # 2. Validate box movements
-            actionValid = True
             for box in state['boxes']:
                 # A box only moves if the keeper new position is hover the box!
                 if box == keeperPosition:
@@ -97,17 +98,20 @@ class SokobanDomain(SearchDomain):
                         actionValid = False
                     
                     # 2.2. Check if new position is hover diamond
-                    if boxPosition in self.diamonds:
+                    elif boxPosition in self.diamonds:
                         continue 
 
-                    # 2.3. Check if moving box to dead end (if next position is wall)
+                    # 2.3. Check if box position is hover the wall
+                    elif self.map[boxPosition[1]][boxPosition[0]] == "#":
+                        actionValid = False
+
+                    # 2.4. Check if moving box to dead end (if next position is wall)
                     elif self.map[boxNextPosition[1]][boxNextPosition[0]] == '#':
                         actionValid = False
-            if not actionValid: 
-                continue
             
-            # If action is valid, append it to list
-            actions.append(action)
+            # If action  is valid, append it to list
+            if actionValid: 
+                actions.append(action)
 
         return actions
 
@@ -146,7 +150,7 @@ class SokobanDomain(SearchDomain):
             # Sum the distance between each box and each diamond
             # x2 because it it more important!
             for diamond in self.diamonds:
-                heuristic += 2*hypot(diamond[0] - box[0], diamond[1] - box[1])
+                heuristic += hypot(diamond[0] - box[0], diamond[1] - box[1])
 
         print("\nHeuristic",heuristic)
         return heuristic
