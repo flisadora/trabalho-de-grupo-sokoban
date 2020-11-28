@@ -31,7 +31,8 @@ y
 A state is an object with the following structure:
 {
     keeper: (x,y)
-    'boxes': [ (x, y)* ]
+    boxes: [ (x, y)* ]
+    action: (w|s|a|d)
 }
 """
 class BoxesDomain(SearchDomain):
@@ -86,6 +87,8 @@ class BoxesDomain(SearchDomain):
         actions = []
         index = 0
 
+        print("Actions for...", state)
+
         for box in state['boxes']:
 
             # For every possible action
@@ -117,6 +120,7 @@ class BoxesDomain(SearchDomain):
             # Update box index
             index += 1
 
+        print(actions)
         return actions
 
     """
@@ -128,7 +132,8 @@ class BoxesDomain(SearchDomain):
     --- Returns
     newState
     """
-    def result(self, state, action):
+    async def result(self, state, action):
+        print("result()", state, action)
         move = self.allActions[action[1]]
         moveReverse = self.allActions[self.actionReverse[action[1]]]
 
@@ -138,21 +143,29 @@ class BoxesDomain(SearchDomain):
         newState = {
             'keeper': state['keeper'],
             'boxes': state['boxes'],
+            'action': '' 
         }
         newState['boxes'][action[0]] = move(box)
 
-        """
         # Create tree to search keeper path to move box
-        d = KeeperWorld(self.map, newState['boxes'])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                )
-        initialState = { 'keeper': newState['keeper'] }
-        goalState = { 'keeper': moveReverse(box) }
+        d = KeeperDomain(self.map, newState['boxes'])
+        initialState = { 'keeper': state['keeper'], 'action': '' }
+        goalState = { 'keeper': moveReverse(box), 'action': '' }
         p = SearchProblem(d, initialState, goalState)
         t = SearchTree(p, 'a*')
-        sol = t.search()
+        search = t.search()
+        sol = await search 
+
 
         if not sol:
             return None
-        """
+
+        # Compute actions
+        newState['action'] = BoxesDomain.getActions(sol) + action[1]
+        # Compute keeper new position
+        newState['keeper'] = move(goalState['keeper'])
+
+        print("FOUND KEEPER PATH", newState)
 
         return newState
 
@@ -163,7 +176,13 @@ class BoxesDomain(SearchDomain):
 
     # custo estimado de chegar de um estado a outro
     def heuristic(self, state, goal):
-        return 0
+        heuristic = 0
+        for box in state['boxes']:
+            # Sum the distance between each box and each diamond
+            for diamond in self.diamonds:
+                heuristic += hypot(diamond[0] - box[0], diamond[1] - box[1])
+
+        return heuristic
 
     # test if the given "goal" is satisfied in "state"
     def satisfies(self, state, goal):
@@ -171,3 +190,12 @@ class BoxesDomain(SearchDomain):
             if box not in state['boxes']:
                 return False
         return True
+
+    @staticmethod
+    def getActions(states):
+        actions = ""
+        for state in states:
+            if state['action']:
+                actions += state['action']
+
+        return actions
