@@ -3,7 +3,7 @@ from tree_search import SearchDomain
 from math import hypot
 
 from tree_search import SearchTree, SearchProblem
-from keeperDomain import keeperDomain
+from keeperDomain import KeeperDomain
 
 """
 Map example:
@@ -34,7 +34,7 @@ A state is an object with the following structure:
     'boxes': [ (x, y)* ]
 }
 """
-class boxesDomain(SearchDomain):
+class BoxesDomain(SearchDomain):
 
     allActions = { # Up, left, down and right
         'w': lambda x: (x[0], x[1]-1),
@@ -49,9 +49,7 @@ class boxesDomain(SearchDomain):
         'w': 's',
         's': 'w'
     }
-
-    revertXY = lambda x,y: (y,x)
-
+    
     def __init__(self,map):
         self.teacherMap = map
         # Build map array
@@ -74,10 +72,10 @@ class boxesDomain(SearchDomain):
             y += 1
 
     """ 
-    Define possible actions for keeper position so that
-    - Does not move againts the wall
-    - Does not push a box to a dead end
-    - Does not move a box on diamond
+    Define possible actions for box position so that
+    - Does not move against or hover the wall
+    - Does not move hover other box
+    - Does not move to a dead end
     --- Parameters
     state
       boxes           [ (x, y)* ]
@@ -93,19 +91,17 @@ class boxesDomain(SearchDomain):
             # For every possible action
             for action, move in self.allActions.items():
                 
-                actionValid = True
-
                 # Compute box new position
                 boxPosition = move(box)
                 boxNextPosition = move(boxPosition)
 
                 # 1. Check if box is moving hover the wall
                 if self.map[box[1]][box[0]] == '#': 
-                    actionValid = False
+                    continue
 
                 # 2. Check if box hover another box (can't pile boxes!)
                 elif boxPosition in state['boxes']:
-                    actionValid = False
+                    continue
 
                 # 3. Check if new position is hover diamond
                 elif boxPosition in self.diamonds:
@@ -113,11 +109,10 @@ class boxesDomain(SearchDomain):
 
                 # 4. Check if moving box to dead end (if next position is wall)
                 elif self.map[boxNextPosition[1]][boxNextPosition[0]] == '#':
-                    actionValid = False                   
+                    continue
                         
                 # If action is valid, append it to list
-                if actionValid: 
-                    actions.append((index, action))
+                actions.append((index, action))
 
             # Update box index
             index += 1
@@ -146,17 +141,18 @@ class boxesDomain(SearchDomain):
         }
         newState['boxes'][action[0]] = move(box)
 
+        """
         # Create tree to search keeper path to move box
-        boxesReversed = [self.revertXY(box[0], box[1]) for box in newState['boxes']]
-        d = keeperDomain(self.teacherMap, newState['boxes'])
-        initialState = { 'keeper': self.revertXY(newState['keeper'][0], newState['keeper'][1]) }
-        goalState = { 'keeper': self.revertXY(moveReverse(box)[0], moveReverse(box)[1]) }
+        d = KeeperWorld(self.map, newState['boxes'])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                )
+        initialState = { 'keeper': newState['keeper'] }
+        goalState = { 'keeper': moveReverse(box) }
         p = SearchProblem(d, initialState, goalState)
         t = SearchTree(p, 'a*')
         sol = t.search()
 
         if not sol:
             return None
+        """
 
         return newState
 
