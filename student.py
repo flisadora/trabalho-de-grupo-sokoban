@@ -7,7 +7,7 @@ import random
 import websockets
 from mapa import Map
 from tree_search import SearchTree, SearchProblem
-from boxesDomain import boxesDomain
+from boxesDomain import BoxesDomain
 from time import time
 
 def getActions(states):
@@ -26,14 +26,14 @@ async def solver(puzzle, solution):
         print(mapa)
 
         print("\nBuilding search domain...")
-        d = boxesDomain(str(mapa))
+        d = BoxesDomain(str(mapa))
         print(d.map)
         print(d.diamonds)
 
         print("\nBuilding search problem...")
-        initialState = { 'boxes': mapa.boxes }
+        initialState = { 'keeper': mapa.keeper, 'boxes': mapa.boxes, 'action': '' }
         print(initialState)
-        goalState = { 'boxes': d.diamonds }
+        goalState = { 'keeper': mapa.keeper, 'boxes': d.diamonds, 'action': '' }
         print(goalState)
         p = SearchProblem(d, initialState, goalState)
         
@@ -47,7 +47,7 @@ async def solver(puzzle, solution):
         
         print("\nWaiting for search...")
         sol = await search
-        print("\nSearch done!")
+        print("\n\n\n\n\nSEARCH DONE!")
         print(sol)
 
         keys = ""
