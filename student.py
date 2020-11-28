@@ -7,7 +7,7 @@ import random
 import websockets
 from mapa import Map
 from tree_search import SearchTree, SearchProblem
-from sobobanDomain import SokobanDomain
+from boxesDomain import boxesDomain
 from time import time
 
 def getActions(states):
@@ -26,14 +26,14 @@ async def solver(puzzle, solution):
         print(mapa)
 
         print("\nBuilding search domain...")
-        d = SokobanDomain(str(mapa))
+        d = boxesDomain(str(mapa))
         print(d.map)
         print(d.diamonds)
 
         print("\nBuilding search problem...")
-        initialState = { 'keeper': mapa.keeper, 'boxes': mapa.boxes, 'action': '' }
+        initialState = { 'boxes': mapa.boxes }
         print(initialState)
-        goalState = { 'keeper': mapa.keeper, 'boxes': d.diamonds, 'action': '' }
+        goalState = { 'boxes': d.diamonds }
         print(goalState)
         p = SearchProblem(d, initialState, goalState)
         
