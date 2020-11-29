@@ -138,11 +138,12 @@ class BoxesDomain(SearchDomain):
         moveReverse = self.allActions[self.actionReverse[action[1]]]
 
         # Box to be moved
-        box = state['boxes'][action[0]]
+        box = (0,0)
+        box = (state['boxes'][action[0]])
 
         newState = {
             'keeper': state['keeper'],
-            'boxes': state['boxes'],
+            'boxes': [box for box in state['boxes']],
             'action': '' 
         }
         newState['boxes'][action[0]] = move(box)
