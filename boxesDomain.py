@@ -180,7 +180,7 @@ class BoxesDomain(SearchDomain):
 
     # custo de uma accao num estado
     def cost(self, state, action):
-        return 0
+        return 1
 
 
     # custo estimado de chegar de um estado a outro

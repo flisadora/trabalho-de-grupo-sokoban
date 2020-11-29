@@ -96,7 +96,7 @@ class KeeperDomain(SearchDomain):
         return { 'keeper' : self.allActions[action](state['keeper']), 'action': action }
           
     def cost(self, state, action):
-        return 0 
+        return 1
 
     """
     Returns the Manhatan distance between the keeper current and goal positions
