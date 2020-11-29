@@ -159,7 +159,7 @@ class BoxesDomain(SearchDomain):
         # If not on state, find path
         else:
             # Create tree to search keeper path to move box
-            d = KeeperDomain(self.map, newState['boxes'])
+            d = KeeperDomain(self.map, state['boxes'])
             p = SearchProblem(d, initialState, goalState)
             t = SearchTree(p, 'a*')
             search = t.search()

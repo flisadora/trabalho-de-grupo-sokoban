@@ -74,7 +74,7 @@ class KeeperDomain(SearchDomain):
                 continue
 
             # 2. Check if keeper is hover a box
-            if self.map[keeper[1]][keeper[0]] in ['$', '*']: 
+            if keeper in self.boxes: 
                 continue
 
             # If action is valid, append it to list
