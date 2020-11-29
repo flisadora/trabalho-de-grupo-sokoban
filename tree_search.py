@@ -169,7 +169,7 @@ class SearchTree:
                 # continue 
                 # Ex1 Avoid cycles (don't visit states already visited) 
                 # Ex4 Depth search with limit (newnode.depth = node.depth + 1 <= limit)
-                if not node.in_upper_family(newstate) and (limit is None or node.depth < limit):
+                if newstate and not node.in_upper_family(newstate) and (limit is None or node.depth < limit):
                     # Ex2 Add depth attr to search nodes
                     # Ex 8 Add cost (from root to self) attr to node 
                     # Ex11 Add heuristic distance from newnode to goal
