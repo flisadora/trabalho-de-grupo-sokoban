@@ -99,7 +99,7 @@ class BoxesDomain(SearchDomain):
                 boxNextPosition = move(boxPosition)
 
                 # 1. Check if box is moving hover the wall
-                if self.map[box[1]][box[0]] == '#': 
+                if self.map[boxPosition[1]][boxPosition[0]] == '#': 
                     continue
 
                 # 2. Check if box hover another box (can't pile boxes!)
@@ -108,7 +108,7 @@ class BoxesDomain(SearchDomain):
 
                 # 3. Check if new position is hover diamond
                 elif boxPosition in self.diamonds:
-                    continue 
+                    pass
 
                 # 4. Check if moving box to dead end (if next position is wall)
                 elif self.map[boxNextPosition[1]][boxNextPosition[0]] == '#':
@@ -146,24 +146,32 @@ class BoxesDomain(SearchDomain):
             'action': '' 
         }
         newState['boxes'][action[0]] = move(box)
-
-        # Create tree to search keeper path to move box
-        d = KeeperDomain(self.map, newState['boxes'])
         initialState = { 'keeper': state['keeper'], 'action': '' }
         goalState = { 'keeper': moveReverse(box), 'action': '' }
-        p = SearchProblem(d, initialState, goalState)
-        t = SearchTree(p, 'a*')
-        search = t.search()
-        sol = await search 
+
+        # Check if agent already on goal state
+        if initialState['keeper'] == goalState['keeper']:
+            # Compute actions
+            newState['action'] = action[1]
+            # Compute keeper new position
+            newState['keeper'] = move(goalState['keeper'])
+        # If not on state, find path
+        else:
+            # Create tree to search keeper path to move box
+            d = KeeperDomain(self.map, newState['boxes'])
+            p = SearchProblem(d, initialState, goalState)
+            t = SearchTree(p, 'a*')
+            search = t.search()
+            sol = await search 
 
 
-        if not sol:
-            return None
+            if not sol:
+                return None
 
-        # Compute actions
-        newState['action'] = BoxesDomain.getActions(sol) + action[1]
-        # Compute keeper new position
-        newState['keeper'] = move(goalState['keeper'])
+            # Compute actions
+            newState['action'] = BoxesDomain.getActions(sol) + action[1]
+            # Compute keeper new position
+            newState['keeper'] = move(goalState['keeper'])
 
         print("FOUND KEEPER PATH", newState)
 
