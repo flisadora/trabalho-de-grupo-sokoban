@@ -172,7 +172,7 @@ class BoxesDomain(SearchDomain):
             d = KeeperDomain(self.map, state['boxes'])
             p = SearchProblem(d, initialState, goalState)
             t = SearchTree(p, 'a*')
-            search = t.search()
+            search = t.search(10)
             sol = await search 
 
 
