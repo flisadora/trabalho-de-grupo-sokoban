@@ -157,7 +157,8 @@ class BoxesDomain(SearchDomain):
             # Compute keeper new position
             newState['keeper'] = move(goalState['keeper'])
         # If not on state, find path
-        else:
+        # Only if keeper not in wall
+        elif self.map[goalState['keeper'][1]][goalState['keeper'][0]] != "#":
             # Create tree to search keeper path to move box
             d = KeeperDomain(self.map, state['boxes'])
             p = SearchProblem(d, initialState, goalState)
