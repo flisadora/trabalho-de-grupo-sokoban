@@ -1,3 +1,5 @@
+docs/
+
 .vscode
 *.code-workspace
 highscores.json
