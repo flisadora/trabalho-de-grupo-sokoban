@@ -195,13 +195,19 @@ class BoxesDomain(SearchDomain):
 
     # custo estimado de chegar de um estado a outro
     def heuristic(self, state, goal):
-        heuristic = 0
-        for box in state['boxes']:
-            # Sum the distance between each box and each diamond
-            for diamond in self.diamonds:
-                heuristic += hypot(diamond[0] - box[0], diamond[1] - box[1])
+        h = 0  # heuristic cost.
 
-        return heuristic
+        for box in state['boxes']:
+            # Find closest diamond
+            min_distance = float("inf")
+            for diamond in self.diamonds:
+                distance = hypot(diamond[0] - box[0], diamond[1] - box[1])
+                if distance <= min_distance:
+                    min_distance = distance
+            h += min_distance  # total heuristic.
+            min_distance = float("inf")  # reintialize for next iteration
+
+        return h
 
     # test if the given "goal" is satisfied in "state"
     def satisfies(self, state, goal):
