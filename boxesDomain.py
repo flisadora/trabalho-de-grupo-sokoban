@@ -35,9 +35,11 @@ A state is an object with the following structure:
     action: (w|s|a|d)
 }
 """
+
+
 class BoxesDomain(SearchDomain):
 
-    allActions = { # Up, left, down and right
+    allActions = {  # Up, left, down and right
         'w': lambda x: (x[0], x[1]-1),
         'a': lambda x: (x[0]-1, x[1]),
         's': lambda x: (x[0], x[1]+1),
@@ -50,8 +52,8 @@ class BoxesDomain(SearchDomain):
         'w': 's',
         's': 'w'
     }
-    
-    def __init__(self,map):
+
+    def __init__(self, map):
         self.teacherMap = map
         # Build map array
         self.map = map.split("\n")
@@ -62,6 +64,7 @@ class BoxesDomain(SearchDomain):
     """
     This method finds diamonds location on map
     """
+
     def findDiamonds(self):
         y = 0
         for line in self.map:
@@ -83,6 +86,7 @@ class BoxesDomain(SearchDomain):
     --- Returns
     actions           [ (indexBox, action)* ]
     """
+
     def actions(self, state):
         actions = []
         index = 0
@@ -93,13 +97,13 @@ class BoxesDomain(SearchDomain):
 
             # For every possible action
             for action, move in self.allActions.items():
-                
+
                 # Compute box new position
                 boxPosition = move(box)
                 boxNextPosition = move(boxPosition)
 
                 # 1. Check if box is moving hover the wall
-                if self.map[boxPosition[1]][boxPosition[0]] == '#': 
+                if self.map[boxPosition[1]][boxPosition[0]] == '#':
                     continue
 
                 # 2. Check if box hover another box (can't pile boxes!)
@@ -109,7 +113,7 @@ class BoxesDomain(SearchDomain):
                 # 3. Check if new position is hover diamond
                 elif boxPosition in self.diamonds:
                     pass
-
+                    
                 # 4. Check if moving box to dead end (if next position is wall)
                 elif self.map[boxNextPosition[1]][boxNextPosition[0]] == '#':
                     # It is still valid if there are any diamonds at that line or column
@@ -144,17 +148,17 @@ class BoxesDomain(SearchDomain):
         moveReverse = self.allActions[self.actionReverse[action[1]]]
 
         # Box to be moved
-        box = (0,0)
         box = (state['boxes'][action[0]])
 
         newState = {
             'keeper': state['keeper'],
             'boxes': [box for box in state['boxes']],
-            'action': '' 
+            'action': ''
         }
         newState['boxes'][action[0]] = move(box)
-        initialState = { 'keeper': state['keeper'], 'action': '' }
-        goalState = { 'keeper': moveReverse(box), 'action': '' }
+
+        initialState = {'keeper': state['keeper'], 'action': ''}
+        goalState = {'keeper': moveReverse(box), 'action': ''}
 
         # Check if agent already on goal state
         if initialState['keeper'] == goalState['keeper']:
@@ -164,7 +168,7 @@ class BoxesDomain(SearchDomain):
             newState['keeper'] = move(goalState['keeper'])
         # If not on state, find path
         else:
-            # Validations 
+            # Validations
             # Check if goal not in wall
             if self.map[goalState['keeper'][1]][goalState['keeper'][0]] == "#":
                 return None
@@ -172,7 +176,7 @@ class BoxesDomain(SearchDomain):
             if goalState['keeper'] in state['boxes']:
                 return None
             # Check if goal is accessible
-            if all(self.map[y][x]=="#" or (x,y) in state['boxes'] for x,y in [move(goalState['keeper']) for _, move in BoxesDomain.allActions.items()]):
+            if all(self.map[y][x] == "#" or (x, y) in state['boxes'] for x, y in [move(goalState['keeper']) for _, move in BoxesDomain.allActions.items()]):
                 return None
             # Create tree to search keeper path to move box
             sol = None
@@ -206,8 +210,8 @@ class BoxesDomain(SearchDomain):
     def cost(self, state, action):
         return 1
 
-
     # custo estimado de chegar de um estado a outro
+
     def heuristic(self, state, goal):
         h = 0  # heuristic cost.
 
