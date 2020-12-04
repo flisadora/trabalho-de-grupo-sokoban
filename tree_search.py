@@ -175,7 +175,7 @@ class SearchTree:
                     # Ex11 Add heuristic distance from newnode to goal
                     print("Action", a)
                     print("New state would be", newstate)
-                    print("OPEN NODES", self.open_nodes)
+                    # print("OPEN NODES", self.open_nodes)
                     newnode = SearchNode(newstate,node,node.depth+1,node.cost + self.problem.domain.cost(node.state, a), self.problem.domain.heuristic(newstate, self.problem.goal), a)
                     lnewnodes.append(newnode)
             self.add_to_open(lnewnodes)
@@ -183,7 +183,7 @@ class SearchTree:
 
     # juntar novos nos a lista de nos abertos de acordo com a estrategia
     def add_to_open(self,lnewnodes):
-        print("ADD_TO_OPEN",lnewnodes)
+        # print("ADD_TO_OPEN",lnewnodes)
         if self.strategy == 'breadth':
             self.open_nodes.extend(lnewnodes)
         elif self.strategy == 'depth':
