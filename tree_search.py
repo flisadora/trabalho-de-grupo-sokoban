@@ -102,6 +102,7 @@ class SearchTree:
         # Ex11 Add heuristic distance from initial state to goal
         root = SearchNode(problem.initial, None, heuristic=problem.domain.heuristic(problem.initial, problem.goal))
         self.open_nodes = [root]
+        self.closed_nodes = []
         self.strategy = strategy
         self.solution = None
         self.length = 0
@@ -139,6 +140,7 @@ class SearchTree:
             await asyncio.sleep(0)
 
             node = self.open_nodes.pop(0)
+            self.closed_nodes.append(node)
             # print("\n",node.state)
             # Ex15 Check if node has the greatest cost
             # It has greater cost than all the others?
@@ -178,7 +180,9 @@ class SearchTree:
                     print("New state would be", newstate)
                     # print("OPEN NODES", self.open_nodes)
                     newnode = SearchNode(newstate,node,node.depth+1,node.cost + self.problem.domain.cost(node.state, a), self.problem.domain.heuristic(newstate, self.problem.goal), a)
-                    lnewnodes.append(newnode)
+                    # Graph search (prevent study of repeated nodes on different branches)
+                    if self.graphSearchNewNode(newnode):
+                        lnewnodes.append(newnode)
                 elif newstate and not node.in_upper_family(newstate) and limit and node.depth >= limit:
                     newnode = SearchNode(newstate,node,node.depth+1,node.cost + self.problem.domain.cost(node.state, a), self.problem.domain.heuristic(newstate, self.problem.goal), a)
                     self.disposedNodesForLimit.append(newnode)
@@ -190,6 +194,14 @@ class SearchTree:
     def recoverSolutions(self):
         self.add_to_open(self.disposedNodesForLimit)
         self.disposedNodesForLimit = []
+
+    # Graph search (prevent study of repeated nodes on different branches)
+    # Checks if node state has been studied before
+    def graphSearchNewNode(self, node):
+        for n in self.closed_nodes:
+            if n.state == node.state:
+                return False
+        return True
 
     # juntar novos nos a lista de nos abertos de acordo com a estrategia
     def add_to_open(self,lnewnodes):
