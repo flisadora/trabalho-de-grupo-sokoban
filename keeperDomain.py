@@ -14,6 +14,7 @@ Map example:
 
 Legend:
 @ Keeper
++ Keeper on diamond
 # Wall
 . Diamond free
 $ Box free

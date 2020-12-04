@@ -16,6 +16,7 @@ Map example:
 
 Legend:
 @ Keeper
++ Keeper on diamond
 # Wall
 . Diamond free
 $ Box free
@@ -70,7 +71,7 @@ class BoxesDomain(SearchDomain):
         for line in self.map:
             x = 0
             for char in line:
-                if char in ['.', '*']:
+                if char in ['.', '*', '+']:
                     self.diamonds.append((x, y))
                 x += 1
             y += 1
