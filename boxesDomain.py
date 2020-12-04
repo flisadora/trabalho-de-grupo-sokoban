@@ -175,13 +175,15 @@ class BoxesDomain(SearchDomain):
             threshold = 2*len(self.map) + len(self.map[0])
             multiplyFactor = 1.5
             limit = len(self.map) if len(self.map)<len(self.map[0]) else len(self.map[0])
+            d = KeeperDomain(self.map, state['boxes'])
+            p = SearchProblem(d, initialState, goalState)
+            t = SearchTree(p, 'a*')
             while not sol and limit<=threshold:
-                d = KeeperDomain(self.map, state['boxes'])
-                p = SearchProblem(d, initialState, goalState)
-                t = SearchTree(p, 'a*')
                 search = t.search(limit)
                 sol = await search
 
+                if not sol:
+                    t.recoverSolutions()
                 limit = round(limit*multiplyFactor)
 
             if not sol:

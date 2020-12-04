@@ -111,6 +111,7 @@ class SearchTree:
         self.cost = 0
         self.nodesWithGreaterCost = []
         self.avg_depth = 0 # TODO (?)
+        self.disposedNodesForLimit = []
 
     # obter o caminho (sequencia de estados) da raiz ate um no
     def get_path(self,node):
@@ -178,8 +179,17 @@ class SearchTree:
                     # print("OPEN NODES", self.open_nodes)
                     newnode = SearchNode(newstate,node,node.depth+1,node.cost + self.problem.domain.cost(node.state, a), self.problem.domain.heuristic(newstate, self.problem.goal), a)
                     lnewnodes.append(newnode)
+                elif newstate and not node.in_upper_family(newstate) and limit and node.depth >= limit:
+                    newnode = SearchNode(newstate,node,node.depth+1,node.cost + self.problem.domain.cost(node.state, a), self.problem.domain.heuristic(newstate, self.problem.goal), a)
+                    self.disposedNodesForLimit.append(newnode)
             self.add_to_open(lnewnodes)
         return None
+
+    # Add to open nodes disposed because of deep limit
+    # It allows to recover them and search with deeper limit
+    def recoverSolutions(self):
+        self.add_to_open(self.disposedNodesForLimit)
+        self.disposedNodesForLimit = []
 
     # juntar novos nos a lista de nos abertos de acordo com a estrategia
     def add_to_open(self,lnewnodes):
