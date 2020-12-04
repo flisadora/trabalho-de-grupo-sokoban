@@ -27,8 +27,6 @@ async def solver(puzzle, solution):
 
         print("\nBuilding search domain...")
         d = BoxesDomain(str(mapa))
-        print(d.map)
-        print(d.diamonds)
 
         print("\nBuilding search problem...")
         initialState = { 'keeper': mapa.keeper, 'boxes': mapa.boxes, 'action': '' }
@@ -47,8 +45,7 @@ async def solver(puzzle, solution):
         
         print("\nWaiting for search...")
         sol = await search
-        print("\n\n\n\n\nSEARCH DONE!")
-        print(sol)
+        print("\nSEARCH DONE!")
 
         keys = ""
         if sol:
@@ -56,17 +53,6 @@ async def solver(puzzle, solution):
             print("\nThe keys are...")
             keys = getActions(sol)
             print(keys)
-            # Save solution to file
-            with open(f'solutions/{game_properties["map"].split("/")[1]}', 'w') as f:
-                for l in d.map:
-                    f.write(l)
-                    f.write("\n")
-                f.write("\n")
-                f.write("Keys for solution are:")
-                f.write(keys)
-                f.write("\n\n")
-                f.write(f'Time taken to run: {time() - start_time} seconds')
-                f.write("\n")
         else:
             print("\nSolution NOT FOUND!")
 

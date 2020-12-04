@@ -96,8 +96,6 @@ class SearchTree:
 
     # construtor
     def __init__(self,problem, strategy='breadth'): 
-        print("New searchTree from..",problem.initial)
-        print("New SearchTree with objective...",problem.goal)
         self.problem = problem
         # Ex11 Add heuristic distance from initial state to goal
         root = SearchNode(problem.initial, None, heuristic=problem.domain.heuristic(problem.initial, problem.goal))
@@ -141,7 +139,6 @@ class SearchTree:
 
             node = self.open_nodes.pop(0)
             self.closed_nodes.append(node)
-            # print("\n",node.state)
             # Ex15 Check if node has the greatest cost
             # It has greater cost than all the others?
             if len(self.nodesWithGreaterCost)==0 or all([node.cost > n.cost for n in self.nodesWithGreaterCost]):
@@ -164,7 +161,6 @@ class SearchTree:
             # Ex5 Register number of non terminal nodes
             self.non_terminals += 1
             lnewnodes = []
-            print("\nStudying node ", node.state)
             for a in self.problem.domain.actions(node.state):
                 # continue
                 newstateRoutine = self.problem.domain.result(node.state,a)
@@ -176,9 +172,6 @@ class SearchTree:
                     # Ex2 Add depth attr to search nodes
                     # Ex 8 Add cost (from root to self) attr to node 
                     # Ex11 Add heuristic distance from newnode to goal
-                    print("Action", a)
-                    print("New state would be", newstate)
-                    # print("OPEN NODES", self.open_nodes)
                     newnode = SearchNode(newstate,node,node.depth+1,node.cost + self.problem.domain.cost(node.state, a), self.problem.domain.heuristic(newstate, self.problem.goal), a)
                     # Graph search (prevent study of repeated nodes on different branches)
                     if self.graphSearchNewNode(newnode):
@@ -205,7 +198,6 @@ class SearchTree:
 
     # juntar novos nos a lista de nos abertos de acordo com a estrategia
     def add_to_open(self,lnewnodes):
-        # print("ADD_TO_OPEN",lnewnodes)
         if self.strategy == 'breadth':
             self.open_nodes.extend(lnewnodes)
         elif self.strategy == 'depth':

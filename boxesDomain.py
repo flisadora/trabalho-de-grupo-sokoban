@@ -92,8 +92,6 @@ class BoxesDomain(SearchDomain):
         actions = []
         index = 0
 
-        print("Actions for...", state)
-
         for box in state['boxes']:
 
             # For every possible action
@@ -137,7 +135,6 @@ class BoxesDomain(SearchDomain):
             # Update box index
             index += 1
 
-        print(actions)
         return actions
 
     """
@@ -150,7 +147,6 @@ class BoxesDomain(SearchDomain):
     newState
     """
     async def result(self, state, action):
-        print("result()", state, action)
         move = self.allActions[action[1]]
         moveReverse = self.allActions[self.actionReverse[action[1]]]
 
@@ -186,7 +182,6 @@ class BoxesDomain(SearchDomain):
             if all(self.map[y][x] == "#" or (x, y) in state['boxes'] for x, y in [move(goalState['keeper']) for _, move in BoxesDomain.allActions.items()]):
                 return None
 
-            print("STATE BEFORE KEEPER", state)
             # Create tree to search keeper path to move box
             sol = None
             threshold = 2*len(self.map) + len(self.map[0])
@@ -198,14 +193,8 @@ class BoxesDomain(SearchDomain):
             while not sol and limit<=threshold:
                 search = t.search(limit)
                 sol = await search
-                print("STATE AFTER KEEPER", state)
                 if not sol:
                     t.recoverSolutions()
-                    print("SOLUTION NOT FOUND for limit",limit)
-                    if round(limit*multiplyFactor)<threshold:
-                        print("INCREASING LIMIT TO", round(limit*multiplyFactor))
-                    else:
-                        print("THRESHOLD REACHED")
                 limit = round(limit*multiplyFactor)
 
             if not sol:
@@ -215,9 +204,6 @@ class BoxesDomain(SearchDomain):
             newState['action'] = BoxesDomain.getActions(sol) + action[1]
             # Compute keeper new position
             newState['keeper'] = move(goalState['keeper'])
-
-            print("FOUND KEEPER PATH", newState)
-            print("STATE IS", state)
 
         return newState
 
