@@ -113,7 +113,11 @@ class BoxesDomain(SearchDomain):
                 # 4. Check if moving box to dead end (if next position is wall)
                 elif self.map[boxNextPosition[1]][boxNextPosition[0]] == '#':
                     # It is still valid if there are any diamonds at that line or column
-                    if not any(boxPosition[0]==x or boxPosition[1]==y for x,y in self.diamonds):
+                    # Horizontal wall
+                    if action in ['w', 's'] and not any(boxPosition[1]==y for _,y in self.diamonds):
+                        continue
+                    # Vertical wall
+                    if action in ['a', 'd'] and not any(boxPosition[0]==x for x,_ in self.diamonds):
                         continue
 
                 # If action is valid, append it to list
