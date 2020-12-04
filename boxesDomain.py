@@ -172,11 +172,10 @@ class BoxesDomain(SearchDomain):
                 return None
             # Create tree to search keeper path to move box
             sol = None
-            threshold = 35
+            threshold = 2*len(self.map) + len(self.map[0])
             multiplyFactor = 1.5
-            limit = 10
-            # 10, 15, 23, 34
-            while not sol and limit<threshold:
+            limit = len(self.map) if len(self.map)<len(self.map[0]) else len(self.map[0])
+            while not sol and limit<=threshold:
                 d = KeeperDomain(self.map, state['boxes'])
                 p = SearchProblem(d, initialState, goalState)
                 t = SearchTree(p, 'a*')
