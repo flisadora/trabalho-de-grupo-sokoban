@@ -171,12 +171,19 @@ class BoxesDomain(SearchDomain):
             if all(self.map[y][x]=="#" or (x,y) in state['boxes'] for x,y in [move(goalState['keeper']) for _, move in BoxesDomain.allActions.items()]):
                 return None
             # Create tree to search keeper path to move box
-            d = KeeperDomain(self.map, state['boxes'])
-            p = SearchProblem(d, initialState, goalState)
-            t = SearchTree(p, 'a*')
-            search = t.search(10)
-            sol = await search 
+            sol = None
+            threshold = 35
+            multiplyFactor = 1.5
+            limit = 10
+            # 10, 15, 23, 34
+            while not sol and limit<threshold:
+                d = KeeperDomain(self.map, state['boxes'])
+                p = SearchProblem(d, initialState, goalState)
+                t = SearchTree(p, 'a*')
+                search = t.search(limit)
+                sol = await search
 
+                limit = round(limit*multiplyFactor)
 
             if not sol:
                 return None
