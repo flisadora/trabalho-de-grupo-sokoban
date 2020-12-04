@@ -178,6 +178,8 @@ class BoxesDomain(SearchDomain):
             # Check if goal is accessible
             if all(self.map[y][x] == "#" or (x, y) in state['boxes'] for x, y in [move(goalState['keeper']) for _, move in BoxesDomain.allActions.items()]):
                 return None
+
+            print("STATE BEFORE KEEPER", state)
             # Create tree to search keeper path to move box
             sol = None
             threshold = 2*len(self.map) + len(self.map[0])
@@ -189,9 +191,14 @@ class BoxesDomain(SearchDomain):
             while not sol and limit<=threshold:
                 search = t.search(limit)
                 sol = await search
-
+                print("STATE AFTER KEEPER", state)
                 if not sol:
                     t.recoverSolutions()
+                    print("SOLUTION NOT FOUND for limit",limit)
+                    if round(limit*multiplyFactor)<threshold:
+                        print("INCREASING LIMIT TO", round(limit*multiplyFactor))
+                    else:
+                        print("THRESHOLD REACHED")
                 limit = round(limit*multiplyFactor)
 
             if not sol:
@@ -202,7 +209,8 @@ class BoxesDomain(SearchDomain):
             # Compute keeper new position
             newState['keeper'] = move(goalState['keeper'])
 
-        print("FOUND KEEPER PATH", newState)
+            print("FOUND KEEPER PATH", newState)
+            print("STATE IS", state)
 
         return newState
 
