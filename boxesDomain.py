@@ -114,16 +114,22 @@ class BoxesDomain(SearchDomain):
                 # 3. Check if new position is hover diamond
                 elif boxPosition in self.diamonds:
                     pass
-                    
+
+                """
                 # 4. Check if moving box to dead end (if next position is wall)
                 elif self.map[boxNextPosition[1]][boxNextPosition[0]] == '#':
                     # It is still valid if there are any diamonds at that line or column
                     # Horizontal wall
                     if action in ['w', 's'] and not any(boxPosition[1]==y for _,y in self.diamonds):
+                        # Check if wall has openning
+                        # if all(block=="#" for block in self.map[boxNextPosition[1]]):
                         continue
                     # Vertical wall
                     if action in ['a', 'd'] and not any(boxPosition[0]==x for x,_ in self.diamonds):
+                        # Check if wall has openning
+                        # if all(line[boxNextPosition[0]]=="#" for line in self.map):
                         continue
+                """
 
                 # If action is valid, append it to list
                 actions.append((index, action))
