@@ -51,3 +51,14 @@ python -m pygame.examples.aliens
 
 Thank you [Kenney](https://www.kenney.nl/assets/sokoban) for the sprites! 
 
+
+
+# Testing
+
+Teacher server http://es1-aulas.ws.atnog.av.it.pt/
+
+Table of scores http://bomberman-aulas.ws.atnog.av.it.pt/table.html
+
+Get results for user `sokocig` http://bomberman-aulas.ws.atnog.av.it.pt/highscores/sokocig
+
+> The user is defined on .drone.ymlx, at steps/commands, prop NAME

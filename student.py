@@ -36,16 +36,31 @@ async def solver(puzzle, solution):
         p = SearchProblem(d, initialState, goalState)
         
         print("\nBuilding search tree...")
-        t = SearchTree(p, 'a*')
+        t = SearchTree(p, 'greedy')
 
         print("\nCreating coroutine for search...")
         start_time = time()
-        search = t.search(40)
-        print(search)
-        
         print("\nWaiting for search...")
-        sol = await search
-        print("\nSEARCH DONE!")
+        
+        sol = None
+        threshold = 90
+        multiplyFactor = 1.5
+        limit = 40
+        while not sol and limit<=threshold:
+            search = t.search(limit)
+            sol = await search
+            if not sol:
+                t.recoverSolutions()
+                print("SOLUTION NOT FOUND for limit",limit)
+                if round(limit*multiplyFactor)<threshold:
+                    print("INCREASING LIMIT TO", round(limit*multiplyFactor))
+                else:
+                    print("THRESHOLD REACHED")
+            limit = round(limit*multiplyFactor)
+                
+        print("\n\n\n\n\nSEARCH DONE!")
+        print(sol)
+        print(f'\nBOXES TREE WITH {t.terminals} terminal nodes and {t.non_terminals} non terminals\n')
 
         keys = ""
         if sol:
@@ -53,6 +68,21 @@ async def solver(puzzle, solution):
             print("\nThe keys are...")
             keys = getActions(sol)
             print(keys)
+            # Save solution to file
+            with open(f'solutions/{game_properties["map"].split("/")[1]}', 'w') as f:
+                for l in d.map:
+                    f.write(l)
+                    f.write("\n")
+                f.write("\n")
+                f.write("Keys for solution are:")
+                f.write(keys)
+                f.write("\n\n")
+                f.write(f'Time taken to run: {time() - start_time} seconds')
+                f.write("\n\n")
+                f.write(f'Tree with length of {t.length}')
+                f.write("\n")
+                f.write(f'{t.terminals} terminal nodes and {t.non_terminals} non terminals')
+                f.write("\n")
         else:
             print("\nSolution NOT FOUND!")
 

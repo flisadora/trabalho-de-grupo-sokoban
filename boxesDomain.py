@@ -113,21 +113,18 @@ class BoxesDomain(SearchDomain):
                 elif boxPosition in self.diamonds:
                     pass
 
-                """
                 # 4. Check if moving box to dead end (if next position is wall)
                 elif self.map[boxNextPosition[1]][boxNextPosition[0]] == '#':
-                    # It is still valid if there are any diamonds at that line or column
-                    # Horizontal wall
-                    if action in ['w', 's'] and not any(boxPosition[1]==y for _,y in self.diamonds):
-                        # Check if wall has openning
-                        # if all(block=="#" for block in self.map[boxNextPosition[1]]):
+                    up = BoxesDomain.allActions['w'](boxPosition)
+                    down = BoxesDomain.allActions['s'](boxPosition)
+                    left = BoxesDomain.allActions['a'](boxPosition)
+                    right = BoxesDomain.allActions['d'](boxPosition)
+                    if self.map[up[1]][up[0]] == "#" and (self.map[left[1]][left[0]] == "#" or self.map[right[1]][right[0]] == "#"):
+                        print("UP AND SIDE ESQUINA", boxPosition)
                         continue
-                    # Vertical wall
-                    if action in ['a', 'd'] and not any(boxPosition[0]==x for x,_ in self.diamonds):
-                        # Check if wall has openning
-                        # if all(line[boxNextPosition[0]]=="#" for line in self.map):
+                    if self.map[down[1]][down[0]] == "#" and (self.map[left[1]][left[0]] == "#" or self.map[right[1]][right[0]] == "#"):
+                        print("DOWN AND SIDE ESQUINA", boxPosition)
                         continue
-                """
 
                 # If action is valid, append it to list
                 actions.append((index, action))
@@ -189,7 +186,7 @@ class BoxesDomain(SearchDomain):
             limit = len(self.map) if len(self.map)<len(self.map[0]) else len(self.map[0])
             d = KeeperDomain(self.map, state['boxes'])
             p = SearchProblem(d, initialState, goalState)
-            t = SearchTree(p, 'a*')
+            t = SearchTree(p, 'greedy')
             while not sol and limit<=threshold:
                 search = t.search(limit)
                 sol = await search
@@ -199,6 +196,8 @@ class BoxesDomain(SearchDomain):
 
             if not sol:
                 return None
+            
+            print(f'\nKEEPER TREE WITH {t.terminals} terminal nodes and {t.non_terminals} non terminals\n')
 
             # Compute actions
             newState['action'] = BoxesDomain.getActions(sol) + action[1]
