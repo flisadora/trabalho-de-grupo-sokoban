@@ -22,25 +22,16 @@ async def solver(puzzle, solution):
     while True:
         game_properties = await puzzle.get()
         mapa = Map(game_properties["map"])
-        print("\nSearching solution for a new map!")
-        print(mapa)
 
-        print("\nBuilding search domain...")
         d = BoxesDomain(str(mapa))
 
-        print("\nBuilding search problem...")
         initialState = { 'keeper': mapa.keeper, 'boxes': mapa.boxes, 'action': '' }
-        print(initialState)
         goalState = { 'keeper': mapa.keeper, 'boxes': d.diamonds, 'action': '' }
-        print(goalState)
         p = SearchProblem(d, initialState, goalState)
         
-        print("\nBuilding search tree...")
         t = SearchTree(p, 'greedy')
 
-        print("\nCreating coroutine for search...")
         start_time = time()
-        print("\nWaiting for search...")
         
         sol = None
         threshold = 90
@@ -51,40 +42,9 @@ async def solver(puzzle, solution):
             sol = await search
             if not sol:
                 t.recoverSolutions()
-                print("SOLUTION NOT FOUND for limit",limit)
-                if round(limit*multiplyFactor)<threshold:
-                    print("INCREASING LIMIT TO", round(limit*multiplyFactor))
-                else:
-                    print("THRESHOLD REACHED")
             limit = round(limit*multiplyFactor)
                 
-        print("\n\n\n\n\nSEARCH DONE!")
-        print(sol)
-        print(f'\nBOXES TREE WITH {t.terminals} terminal nodes and {t.non_terminals} non terminals\n')
-
         keys = ""
-        if sol:
-            print("\nTHERE IS A SOLUTION")
-            print("\nThe keys are...")
-            keys = getActions(sol)
-            print(keys)
-            # Save solution to file
-            with open(f'solutions/{game_properties["map"].split("/")[1]}', 'w') as f:
-                for l in d.map:
-                    f.write(l)
-                    f.write("\n")
-                f.write("\n")
-                f.write("Keys for solution are:")
-                f.write(keys)
-                f.write("\n\n")
-                f.write(f'Time taken to run: {time() - start_time} seconds')
-                f.write("\n\n")
-                f.write(f'Tree with length of {t.length}')
-                f.write("\n")
-                f.write(f'{t.terminals} terminal nodes and {t.non_terminals} non terminals')
-                f.write("\n")
-        else:
-            print("\nSolution NOT FOUND!")
 
         await solution.put(keys)
 
@@ -104,8 +64,6 @@ async def agent_loop(puzzle, solution, server_address="localhost:8000", agent_na
                     # we got a new level
                     game_properties = update
                     keys = ""
-                    print("\nReceived game properties!")
-                    print(game_properties)
                     await puzzle.put(game_properties)
 
                 if not solution.empty():

@@ -120,10 +120,8 @@ class BoxesDomain(SearchDomain):
                     left = BoxesDomain.allActions['a'](boxPosition)
                     right = BoxesDomain.allActions['d'](boxPosition)
                     if self.map[up[1]][up[0]] == "#" and (self.map[left[1]][left[0]] == "#" or self.map[right[1]][right[0]] == "#"):
-                        print("UP AND SIDE ESQUINA", boxPosition)
                         continue
                     if self.map[down[1]][down[0]] == "#" and (self.map[left[1]][left[0]] == "#" or self.map[right[1]][right[0]] == "#"):
-                        print("DOWN AND SIDE ESQUINA", boxPosition)
                         continue
 
                 # If action is valid, append it to list
@@ -197,8 +195,6 @@ class BoxesDomain(SearchDomain):
             if not sol:
                 return None
             
-            print(f'\nKEEPER TREE WITH {t.terminals} terminal nodes and {t.non_terminals} non terminals\n')
-
             # Compute actions
             newState['action'] = BoxesDomain.getActions(sol) + action[1]
             # Compute keeper new position
