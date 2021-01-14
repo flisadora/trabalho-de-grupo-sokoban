@@ -45,6 +45,8 @@ async def solver(puzzle, solution):
             limit = round(limit*multiplyFactor)
                 
         keys = ""
+        if sol:
+            keys = getActions(sol)
 
         await solution.put(keys)
 
